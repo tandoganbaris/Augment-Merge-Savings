@@ -88,31 +88,31 @@ end
 
 function mergetours(instance, key, tour1::VRPTour, tour2::VRPTour)
 
-newtour = VRPTour(0,0,0,[])
+newtour = createVRPTour(0,0,0.0,Vector{Node}())
 
 if tour1.nodes[end].id == key[1] && tour2.nodes[1].id == key[2] # ...i <-> j....
     nodes_combined = vcat(deepcopy(tour1.nodes), deepcopy(tour2.nodes))
     total_demand = tour1.demand + tour2.demand
-    newtour = VRPTour(instance.capacity,total_demand,0,nodes_combined)
+    newtour = createVRPTour(instance.capacity,total_demand,0.0,nodes_combined)
     newtour.distance = calculate_tour_distance(instance, newtour)
 
 
 elseif tour1.nodes[end].id == key[1] && tour2.nodes[end].id == key[2] # ...i <-> ....j
     nodes_combined = vcat(deepcopy(tour1.nodes), reverse(deepcopy(tour2.nodes)))
     total_demand = tour1.demand + tour2.demand
-    newtour = VRPTour(instance.capacity,total_demand,0,nodes_combined)
+    newtour = createVRPTour(instance.capacity,total_demand,0.0,nodes_combined)
     newtour.distance = calculate_tour_distance(instance, newtour)
 
 elseif tour1.nodes[1].id == key[1] && tour2.nodes[1].id == key[2] # i... <-> j....
     nodes_combined = vcat(reverse(deepcopy(tour1.nodes)), deepcopy(tour2.nodes))
     total_demand = tour1.demand + tour2.demand
-    newtour = VRPTour(instance.capacity,total_demand,0,nodes_combined)
+    newtour = createVRPTour(instance.capacity,total_demand,0.0,nodes_combined)
     newtour.distance = calculate_tour_distance(instance, newtour)
 
 elseif tour1.nodes[1].id == key[1] && tour2.nodes[end].id == key[2] # i... <-> ....j
     nodes_combined = vcat(deepcopy(tour2.nodes), deepcopy(tour1.nodes))
     total_demand = tour1.demand + tour2.demand
-    newtour = VRPTour(instance.capacity,total_demand,0,nodes_combined)
+    newtour = createVRPTour(instance.capacity,total_demand,0.0,nodes_combined)
     newtour.distance = calculate_tour_distance(instance, newtour)
 end
 #if(newtour.distance> tour1.distance + tour2.distance)
@@ -123,7 +123,7 @@ return newtour
 end
 
 function findtour(node::Int, tours::Vector{VRPTour})
-    emptytour = VRPTour(0,0,0,[])
+    emptytour = createVRPTour(0,0,0.0,Vector{Node}())
     for tour in tours
         if tour.nodes[1].id == node || tour.nodes[end].id == node
             return true, tour
@@ -166,7 +166,7 @@ function initializetours(instance)
     for node in instance.nodes
         if node.demand>0
             
-            newtour = VRPTour(instance.capacity, node.demand,0,[node])
+            newtour = createVRPTour(instance.capacity, node.demand,0.0,[node])
             newtour.distance = 2*instance.distancematrix[instance.destDepot, node.id]
             push!(tours, newtour)
         end

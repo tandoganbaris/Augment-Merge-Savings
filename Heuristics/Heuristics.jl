@@ -1,14 +1,13 @@
 module Heuristics
 using DataStructures
 
+import .Main.CVRP_instance: CVRPInstance, VRPTour, Node, createVRPTour, recomputeCostAndDemand!
 
-#include("../Cvrp_instance.jl")
-using .Main.CVRP_instance
-#using .Main.Cvrp_instance
-#import .Main.Cvrp_instance::CVRPInstance, VRPTour, Node
+include("../Cvrp_solution.jl")
 include("Savings.jl")
+include("Insertions_LS.jl")
 
-export savingsalgo, savingsalgo_output
+export savingsalgo, savingsalgo_output, ConstructSolutionByInsertion, LocalSearchWithRelocate, simpleLS
 
 
-end
+end  # End of module Heuristics

@@ -12,13 +12,17 @@ using Revise
 filepath = raw"C:\codestuff\TilkVRP\CVRP_heu framework\instances\Vrp-Set-X\X\X-n153-k22.vrp"
 currentinstance = cv.CVRPInstance(filepath)
 
+
+
+##Savings Test Part
+
 #tours = savingsalgo(currentinstance)
 #print(savingsalgo_output(tours))
-
+#=
 const to = TimerOutput()
 
 outputs = Dict()
-for i in 1:30
+for i in 1:5
     if(i<2)
         tours = savingsalgo(currentinstance)
        # verified = verify_augmentmerge(tours, currentinstance) #verify that all demand is covered
@@ -32,3 +36,5 @@ for i in 1:30
 end
 print(outputs[1])
 show(to)
+=#
+ simpleLS(currentinstance)

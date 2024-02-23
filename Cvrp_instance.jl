@@ -2,7 +2,7 @@ module CVRP_instance
 using LinearAlgebra
 import Base
 
-export Node, CVRPinstance, VRPTour 
+export Node, CVRPinstance, VRPTour , createVRPTour
 mutable struct Node
     X::Int
     Y::Int
@@ -32,14 +32,35 @@ mutable struct VRPTour
     demand::Int64
     distance::Float64
     nodes::Vector{Node} #careful about including or excluding depot
+    feasible::Bool
 end
-function VRPTour(capacity::Int64, demand::Int64, distance::Float64, nodes::Vector{Node})
-    return VRPTour(capacity, demand, distance, nodes)
+function createVRPTour(capacity::Int64, demand::Int64, distance::Float64, nodes::Vector{Node}, feasible::Bool =true)
+    
+    return VRPTour(capacity, demand, distance, nodes, feasible)
+end
+function recomputeCostAndDemand!(tour::VRPTour, instance::CVRPInstance)
+    tour.demand = sum(node.demand for node in tour.nodes)
+    tour.distance = calculate_tour_distance(tour, instance)
+    tour.feasible = tour.demand <= tour.capacity && all(unique(tour.nodes) .== tour.nodes)
+    #omitted depot from node vectors of tours
+end
+
+function calculate_tour_distance(tour::VRPTour, instance::CVRPInstance)
+    total_distance = 0.0
+    num_nodes = length(tour.nodes)
+    for i in 1:num_nodes-1 
+        current_node = tour.nodes[i]
+        next_node = tour.nodes[i+1]
+        total_distance += instance.distancematrix[current_node.id, next_node.id]
+    end
+    # Add distance from last node back to the depot
+    total_distance += instance.distancematrix[tour.nodes[end].id, instance.destDepot] + instance.distancematrix[tour.nodes[1].id, instance.origDepot]
+    return total_distance
 end
 
 function Base.show(io::IO, tour::VRPTour)
     node_str = join([string(node.id) for node in tour.nodes], ", ")
-    println(io, "Tour: [Nodes: $node_str, Total Distance: $(tour.distance), Total Demand: $(tour.demand)]")
+    println(io, "Tour: [Nodes: $node_str, Total Distance: $(tour.distance), Total Demand: $(tour.demand)], Feasible: $(tour.feasible)")
 end
 
 function read_section(file, keyword::String)
@@ -125,7 +146,7 @@ function CVRPInstance(filename::String)::CVRPInstance
         for j in 1:numNodes         
             
             if i == j
-                distancematrix[i, j] = typemax(Int)
+                distancematrix[i, j] = 0
             else
                 node1= nodes[i]
                 node2= nodes[j]
